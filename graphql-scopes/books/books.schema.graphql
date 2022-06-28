@@ -1,0 +1,11 @@
+type Query {
+	"""
+	This query involves a custom directive, and gets top authors.
+	"""
+	getBook(id: ID!): Book
+}
+
+type Book {
+	author: Author
+	id: ID
+}

@@ -1,0 +1,9 @@
+schema: "./graphql-scopes/**/*.graphql"
+generates:
+  ./global-types/graphql.ts:
+    config:
+      contextType: ../graphql-scopes/server#IContext
+      defaultMapper: Partial<{T}>
+    plugins:
+      - typescript
+      - typescript-resolvers
