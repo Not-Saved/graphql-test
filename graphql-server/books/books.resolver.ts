@@ -1,18 +1,17 @@
-import { Resolvers, Book } from "@typings/graphql"
+import { Resolvers } from "@gTypes/graphql-generated";
 
 const book = {
 	id: "5"
 }
 
 const author = {
-	id: "5",
 	name: "Loris",
-	test: true
+	gender: "Male"
 }
 
 const resolvers: Resolvers = {
 	Query: {
-		getBook: async (parent, args) => {
+		getBook: async (parent, args, context, info) => {
 			return Object.assign(book, { author: author })
 		}
 	}

@@ -1,11 +1,14 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { IContext } from '../graphql-scopes/server';
+import { IContext } from '../graphql-server/server';
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+const defaultOptions = {} as const;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -17,8 +20,8 @@ export type Scalars = {
 
 export type Author = {
   __typename?: 'Author';
-  id?: Maybe<Scalars['ID']>;
-  name?: Maybe<Scalars['String']>;
+  gender: Scalars['String'];
+  name: Scalars['String'];
 };
 
 export type Book = {
@@ -29,7 +32,7 @@ export type Book = {
 
 export type Query = {
   __typename?: 'Query';
-  getAuthor?: Maybe<Author>;
+  getAuthor: Author;
   /** This query involves a custom directive, and gets top authors. */
   getBook?: Maybe<Book>;
 };
@@ -132,8 +135,8 @@ export type ResolversParentTypes = {
 };
 
 export type AuthorResolvers<ContextType = IContext, ParentType extends ResolversParentTypes['Author'] = ResolversParentTypes['Author']> = {
-  id?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  gender?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -144,7 +147,7 @@ export type BookResolvers<ContextType = IContext, ParentType extends ResolversPa
 };
 
 export type QueryResolvers<ContextType = IContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getAuthor?: Resolver<Maybe<ResolversTypes['Author']>, ParentType, ContextType, RequireFields<QueryGetAuthorArgs, 'id'>>;
+  getAuthor?: Resolver<ResolversTypes['Author'], ParentType, ContextType, RequireFields<QueryGetAuthorArgs, 'id'>>;
   getBook?: Resolver<Maybe<ResolversTypes['Book']>, ParentType, ContextType, RequireFields<QueryGetBookArgs, 'id'>>;
 };
 
@@ -154,3 +157,47 @@ export type Resolvers<ContextType = IContext> = {
   Query?: QueryResolvers<ContextType>;
 };
 
+
+export type GetAuthorQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetAuthorQuery = { __typename?: 'Query', getAuthor: { __typename?: 'Author', name: string } };
+
+
+export const GetAuthorDocument = gql`
+    query getAuthor($id: ID!) {
+  getAuthor(id: $id) {
+    name
+  }
+}
+    `;
+
+/**
+ * __useGetAuthorQuery__
+ *
+ * To run a query within a React component, call `useGetAuthorQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAuthorQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAuthorQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAuthorQuery(baseOptions: Apollo.QueryHookOptions<GetAuthorQuery, GetAuthorQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, options);
+      }
+export function useGetAuthorLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAuthorQuery, GetAuthorQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, options);
+        }
+export type GetAuthorQueryHookResult = ReturnType<typeof useGetAuthorQuery>;
+export type GetAuthorLazyQueryHookResult = ReturnType<typeof useGetAuthorLazyQuery>;
+export type GetAuthorQueryResult = Apollo.QueryResult<GetAuthorQuery, GetAuthorQueryVariables>;

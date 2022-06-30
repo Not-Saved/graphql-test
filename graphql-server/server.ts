@@ -13,15 +13,18 @@ export interface IContext {
 }
 
 export const apolloServer = new ApolloServer({
-	typeDefs: loadFilesSync('graphql-scopes/**/*.graphql'),
+	typeDefs: loadFilesSync('graphql-server/**/*.graphql'),
 	resolvers: mergeResolvers(Object.values(resolvers)),
 	csrfPrevention: true,
 	plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
 	dataSources: () => {
+		//Estremamente importante che questo oggetto venga creato ogni volta, quindi per forza dataSources() e non dataSource e basta
 		return dataSources();
 	},
 	context: ({ req }) => {
+		//Esempio di come si mette una sessione nel context
 		return { user: "Loris" }
-	}
+	},
+	cache: "bounded"
 });
 

@@ -1,8 +1,0 @@
-type Query {
-	getAuthor(id: ID!): Author
-}
-
-type Author {
-	name: String
-	id: ID
-}

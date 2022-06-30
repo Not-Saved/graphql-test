@@ -1,4 +1,4 @@
-import { Author } from '@typings/graphql';
+import { Author } from "@gTypes/graphql-generated"
 import { RESTDataSource } from 'apollo-datasource-rest';
 
 class AuthorsAPI extends RESTDataSource {
@@ -10,7 +10,7 @@ class AuthorsAPI extends RESTDataSource {
 	}
 
 	async getAuthorById(id: string): Promise<Author> {
-		const stuff = await this.get(`characters/${id}`)
+		const stuff = await this.get(`characters/${id}`, undefined, { cacheOptions: { ttl: 0 } })
 		return stuff
 	}
 }

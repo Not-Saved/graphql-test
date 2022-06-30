@@ -1,0 +1,12 @@
+schema: "./graphql-server/**/*.graphql"
+documents: "./graphql-client/queries/*.graphql"
+generates:
+  ./types/graphql-generated.ts:
+    config:
+      contextType: ../graphql-server/server#IContext
+      defaultMapper: Partial<{T}>
+    plugins:
+      - typescript
+      - typescript-resolvers
+      - typescript-operations
+      - typescript-react-apollo

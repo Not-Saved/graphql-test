@@ -1,4 +1,4 @@
-import { Resolvers } from "@typings/graphql";
+import { Resolvers } from "@gTypes/graphql-generated";
 
 const resolvers: Resolvers = {
 	Query: {
