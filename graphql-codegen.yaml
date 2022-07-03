@@ -5,11 +5,18 @@ generates:
     config:
       contextType: ../graphql-server/server#IContext
       defaultMapper: Partial<{T}>
+      fetcher:
+        endpoint: "http://localhost:3000/api/graphql"
+        fetchParams:
+          headers:
+            Content-Type: application/json
+      exposeFetcher: true
+      exposeQueryKeys: true
     plugins:
       - typescript
       - typescript-resolvers
       - typescript-operations
-      - typescript-react-apollo
+      - typescript-react-query
   ./types/introspection.json:
     plugins:
       - introspection

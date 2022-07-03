@@ -30,6 +30,7 @@ export const apolloServer = new ApolloServer({
 		return { user: "Loris" }
 	},
 	cache: "bounded",
-	mocks: useMocks ? mergedMocks : undefined
+	mocks: useMocks ? mergedMocks : undefined,
+
 });
 

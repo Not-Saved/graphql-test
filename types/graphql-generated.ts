@@ -1,14 +1,32 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IContext } from '../graphql-server/server';
-import { gql } from '@apollo/client';
-import * as Apollo from '@apollo/client';
+import { useQuery, UseQueryOptions } from 'react-query';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
-const defaultOptions = {} as const;
+
+function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
+  return async (): Promise<TData> => {
+    const res = await fetch("http://localhost:3000/api/graphql", {
+    method: "POST",
+    ...({"headers":{"Content-Type":"application/json"}}),
+      body: JSON.stringify({ query, variables }),
+    });
+
+    const json = await res.json();
+
+    if (json.errors) {
+      const { message } = json.errors[0];
+
+      throw new Error(message);
+    }
+
+    return json.data;
+  }
+}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: string;
@@ -184,38 +202,27 @@ export type GetAuthorQueryVariables = Exact<{
 export type GetAuthorQuery = { __typename?: 'Query', getAuthor: { __typename?: 'Author', name: string } };
 
 
-export const GetAuthorDocument = gql`
+export const GetAuthorDocument = `
     query getAuthor($id: ID!) {
   getAuthor(id: $id) {
     name
   }
 }
     `;
+export const useGetAuthorQuery = <
+      TData = GetAuthorQuery,
+      TError = unknown
+    >(
+      variables: GetAuthorQueryVariables,
+      options?: UseQueryOptions<GetAuthorQuery, TError, TData>
+    ) =>
+    useQuery<GetAuthorQuery, TError, TData>(
+      ['getAuthor', variables],
+      fetcher<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, variables),
+      options
+    );
 
-/**
- * __useGetAuthorQuery__
- *
- * To run a query within a React component, call `useGetAuthorQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAuthorQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAuthorQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetAuthorQuery(baseOptions: Apollo.QueryHookOptions<GetAuthorQuery, GetAuthorQueryVariables>) {
-        const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, options);
-      }
-export function useGetAuthorLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAuthorQuery, GetAuthorQueryVariables>) {
-          const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, options);
-        }
-export type GetAuthorQueryHookResult = ReturnType<typeof useGetAuthorQuery>;
-export type GetAuthorLazyQueryHookResult = ReturnType<typeof useGetAuthorLazyQuery>;
-export type GetAuthorQueryResult = Apollo.QueryResult<GetAuthorQuery, GetAuthorQueryVariables>;
+useGetAuthorQuery.getKey = (variables: GetAuthorQueryVariables) => ['getAuthor', variables];
+;
+
+useGetAuthorQuery.fetcher = (variables: GetAuthorQueryVariables) => fetcher<GetAuthorQuery, GetAuthorQueryVariables>(GetAuthorDocument, variables);

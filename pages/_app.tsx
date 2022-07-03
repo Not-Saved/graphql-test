@@ -1,15 +1,18 @@
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import { ApolloProvider } from '@apollo/client'
-import { useApollo } from "@graphqlClient/client"
+
+import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
+import { useState } from 'react';
 
 function MyApp({ Component, pageProps }: AppProps) {
-	const { initialApolloState, ...rest } = pageProps;
-	const apolloClient = useApollo(initialApolloState);
+	const [queryClient] = useState(() => new QueryClient())
+	const { dehydratedState, ...rest } = pageProps;
 
-	return <ApolloProvider client={apolloClient}>
-		<Component {...rest} />
-	</ApolloProvider>
+	return <QueryClientProvider client={queryClient}>
+		<Hydrate state={dehydratedState}>
+			<Component {...rest} />
+		</Hydrate>
+	</QueryClientProvider>
 }
 
 export default MyApp

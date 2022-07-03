@@ -1,12 +1,11 @@
+import { dehydrate, QueryClient } from 'react-query'
+import { useGetAuthorQuery } from '@gTypes/graphql-generated'
 import type { GetServerSideProps, NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 
-import { initializeApollo } from '@graphqlClient/client'
-import { GetAuthorDocument, useGetAuthorQuery } from '@gTypes/graphql-generated'
-
 const Home: NextPage = () => {
-	const { data, loading } = useGetAuthorQuery({ variables: { id: "752" } })
+	const { data, isLoading } = useGetAuthorQuery({ id: "752" })
 
 	return (
 		<div className={styles.container}>
@@ -18,18 +17,23 @@ const Home: NextPage = () => {
 			<main className={styles.main}>
 				<h2>Look in <code>getServerSideProps</code></h2>
 				<p>and change the id of the query to play with the cache</p>
-				<div>{loading ? "LOADING DATA" : data?.getAuthor.name}</div>
+				<div>{isLoading ? "LOADING DATA" : data?.getAuthor?.name}</div>
 			</main>
 		</div>
 	)
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const apolloClient = initializeApollo();
-	await apolloClient.query({ query: GetAuthorDocument, variables: { id: "752" } })
+	const queryClient = new QueryClient()
+
+	await queryClient.prefetchQuery(
+		useGetAuthorQuery.getKey({ id: "752" }),
+		() => useGetAuthorQuery.fetcher({ id: "752" })
+	)
+
 	return {
 		props: {
-			initialApolloState: apolloClient.cache.extract(),
+			dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient)))
 		}
 	}
 }

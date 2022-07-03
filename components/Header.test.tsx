@@ -1,10 +1,10 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, render } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from 'react-query'
 import Header from './Header'
-import { renderWithProviders } from 'utils/test/renderWithProviders';
 
 describe('Home', () => {
 	it('renders a heading', async () => {
-		renderWithProviders(<Header />)
+		render(<QueryClientProvider client={new QueryClient()}><Header /></QueryClientProvider>)
 
 		const heading = await waitFor(() => {
 			return screen.getByRole('heading', {
