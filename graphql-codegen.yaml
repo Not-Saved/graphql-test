@@ -10,3 +10,8 @@ generates:
       - typescript-resolvers
       - typescript-operations
       - typescript-react-apollo
+  ./types/introspection.json:
+    plugins:
+      - introspection
+    config:
+      minify: true

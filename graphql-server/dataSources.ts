@@ -1,4 +1,4 @@
-import { datasource as AuthorsAPI } from "./authors"
+import { default as AuthorsAPI } from "./authors/authors.datasource"
 
 const sources = () => ({
 	authorsAPI: new AuthorsAPI()

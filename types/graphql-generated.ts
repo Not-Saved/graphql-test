@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { IContext } from '../graphql-server/server';
 import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
@@ -16,12 +16,15 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  JSON: any;
+  JSONObject: any;
 };
 
 export type Author = {
   __typename?: 'Author';
   gender: Scalars['String'];
   name: Scalars['String'];
+  stuff?: Maybe<Scalars['JSON']>;
 };
 
 export type Book = {
@@ -120,6 +123,8 @@ export type ResolversTypes = {
   Book: ResolverTypeWrapper<Partial<Book>>;
   Boolean: ResolverTypeWrapper<Partial<Scalars['Boolean']>>;
   ID: ResolverTypeWrapper<Partial<Scalars['ID']>>;
+  JSON: ResolverTypeWrapper<Partial<Scalars['JSON']>>;
+  JSONObject: ResolverTypeWrapper<Partial<Scalars['JSONObject']>>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Partial<Scalars['String']>>;
 };
@@ -130,6 +135,8 @@ export type ResolversParentTypes = {
   Book: Partial<Book>;
   Boolean: Partial<Scalars['Boolean']>;
   ID: Partial<Scalars['ID']>;
+  JSON: Partial<Scalars['JSON']>;
+  JSONObject: Partial<Scalars['JSONObject']>;
   Query: {};
   String: Partial<Scalars['String']>;
 };
@@ -137,6 +144,7 @@ export type ResolversParentTypes = {
 export type AuthorResolvers<ContextType = IContext, ParentType extends ResolversParentTypes['Author'] = ResolversParentTypes['Author']> = {
   gender?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stuff?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -146,6 +154,14 @@ export type BookResolvers<ContextType = IContext, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
+export interface JsonObjectScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSONObject'], any> {
+  name: 'JSONObject';
+}
+
 export type QueryResolvers<ContextType = IContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   getAuthor?: Resolver<ResolversTypes['Author'], ParentType, ContextType, RequireFields<QueryGetAuthorArgs, 'id'>>;
   getBook?: Resolver<Maybe<ResolversTypes['Book']>, ParentType, ContextType, RequireFields<QueryGetBookArgs, 'id'>>;
@@ -154,6 +170,8 @@ export type QueryResolvers<ContextType = IContext, ParentType extends ResolversP
 export type Resolvers<ContextType = IContext> = {
   Author?: AuthorResolvers<ContextType>;
   Book?: BookResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
+  JSONObject?: GraphQLScalarType;
   Query?: QueryResolvers<ContextType>;
 };
 

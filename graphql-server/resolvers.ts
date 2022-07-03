@@ -1,2 +1,3 @@
-export { resolvers as books } from "./books"
-export { resolvers as authors } from "./authors"
+export { default as books } from "./books/books.resolver"
+export { default as authors } from "./authors/authors.resolver"
+export { default as global } from "./global/global.resolver"

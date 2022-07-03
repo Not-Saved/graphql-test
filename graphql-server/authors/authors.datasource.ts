@@ -10,8 +10,7 @@ class AuthorsAPI extends RESTDataSource {
 	}
 
 	async getAuthorById(id: string): Promise<Author> {
-		const stuff = await this.get(`characters/${id}`, undefined, { cacheOptions: { ttl: 0 } })
-		return stuff
+		return await this.get(`characters/${id}`)
 	}
 }
 

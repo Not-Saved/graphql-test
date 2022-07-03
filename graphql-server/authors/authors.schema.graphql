@@ -5,4 +5,5 @@ type Query {
 type Author {
 	name: String!
 	gender: String!
+	stuff: JSON
 }
