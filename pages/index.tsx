@@ -31,9 +31,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		() => useGetAuthorQuery.fetcher({ id: "752" })
 	)
 
+	const dehydratedState = dehydrate(queryClient)
+	const state = dehydratedState.queries.map(async (query) => {
+		const data = await query.state.data
+		return { ...query, state: { ...query.state, data } }
+	})
+	const state2 = { ...dehydratedState, queries: await Promise.all(state) }
+
 	return {
 		props: {
-			dehydratedState: JSON.parse(JSON.stringify(dehydrate(queryClient)))
+			dehydratedState: state2
 		}
 	}
 }
