@@ -1,13 +1,19 @@
-import type { GetServerSideProps, GetStaticProps, NextPage } from 'next'
+import type { GetStaticProps, NextPage } from 'next'
 import Head from "next/head"
+import Link from "next/link"
 
 import { performance } from "perf_hooks"
 
 import styles from "../styles/Home.module.css"
 
 import { initializeApollo } from "@graphqlClient/client"
-import { serverSideQuery } from "@graphqlServer/server"
-import { GetAuthorDocument, useGetAuthorQuery } from "@gTypes/graphql-generated"
+import { serverSideQuery } from "@graphqlServer/serverSideQuery"
+import {
+    GetAuthorDocument,
+    GetAuthorQuery,
+    GetAuthorQueryVariables,
+    useGetAuthorQuery
+} from "@gTypes/graphql-generated"
 
 const Home: NextPage = () => {
 	const { data, loading } = useGetAuthorQuery({ variables: { id: "752" } })
@@ -20,22 +26,27 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className={styles.main}>
-				<h2>Look in <code>getServerSideProps</code></h2>
-				<p>and change the id of the query to play with the cache</p>
-				<div>{loading ? "LOADING DATA" : data?.getAuthor.name}</div>
+				<h2>This page was rendered using SSG</h2>
+				<p>Look in <code>getStaticProps</code> and change the <code>id</code> of the query to play with the cache</p>
+				<p>{"Fetched author name: "}<code>{loading ? "...loading" : data?.getAuthor.name}</code></p>
+				<p><Link href="/ssr">Try a SSR page</Link></p>
 			</main>
+
+
+
 		</div>
 	)
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getStaticProps: GetStaticProps = async (context) => {
 	const start = performance.now()
-	const cache = await serverSideQuery({ query: GetAuthorDocument, variables: { id: "752" } }, { req, res })
+	const res = await serverSideQuery<GetAuthorQuery, GetAuthorQueryVariables>({ query: GetAuthorDocument, variables: { id: "752" } })
 	const end = performance.now()
-	console.log(`Call to getServerSideProps using serverSideQuery took ${end - start} milliseconds`)
+
+	console.log(`Call to getStaticProps using serverSideQuery took ${end - start} milliseconds`)
 	return {
 		props: {
-			initialApolloState: cache?.extract()
+			initialApolloState: res.cache.extract()
 		}
 	}
 }
@@ -45,7 +56,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 	const client = initializeApollo()
 	const cache = await client.query({ query: GetAuthorDocument, variables: { id: "752" } })
 	const end = performance.now()
-	console.log(`Call to getServerSideProps using ApolloClient took ${end - start} milliseconds`)
+	console.log(`Call to getStaticProps using ApolloClient took ${end - start} milliseconds`)
 	return {
 		props: {
 			initialApolloState: client.cache?.extract()

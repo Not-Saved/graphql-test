@@ -1,15 +1,16 @@
-import type { GetServerSideProps, GetStaticProps, NextPage } from 'next'
+import type { GetServerSideProps, NextPage } from 'next'
 import Head from "next/head"
+import Link from "next/link"
 
 import { performance } from "perf_hooks"
 
 import styles from "../styles/Home.module.css"
 
 import { initializeApollo } from "@graphqlClient/client"
-import { serverSideQuery } from "@graphqlServer/server"
+import { serverSideQuery } from "@graphqlServer/serverSideQuery"
 import { GetAuthorDocument, useGetAuthorQuery } from "@gTypes/graphql-generated"
 
-const Page: NextPage = () => {
+const SSR: NextPage = () => {
     const { data, loading } = useGetAuthorQuery({ variables: { id: "752" } })
 
     return (
@@ -20,8 +21,10 @@ const Page: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main className={styles.main}>
-                <h2>Another Page</h2>
-                <div>{loading ? "LOADING DATA" : data?.getAuthor.name}</div>
+                <h2>This page was rendered using SSR</h2>
+                <p>Look in <code>getServerSideProps</code> and change the <code>id</code> of the query to play with the cache</p>
+                <p>{"Fetched author name: "}<code>{loading ? "...loading" : data?.getAuthor.name}</code></p>
+                <p><Link href="/">Try a SSG page</Link></p>
             </main>
         </div>
     )
@@ -29,12 +32,12 @@ const Page: NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     const start = performance.now()
-    const cache = await serverSideQuery({ query: GetAuthorDocument, variables: { id: "752" } }, { req, res })
+    const queryRes = await serverSideQuery({ query: GetAuthorDocument, variables: { id: "752" } }, { req, res })
     const end = performance.now()
     console.log(`Call to getServerSideProps using serverSideQuery took ${end - start} milliseconds`)
     return {
         props: {
-            initialApolloState: cache?.extract()
+            initialApolloState: queryRes.cache.extract()
         }
     }
 }
@@ -52,4 +55,4 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     }
 } */
 
-export default Page
+export default SSR

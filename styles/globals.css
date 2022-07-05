@@ -7,10 +7,20 @@ body {
 }
 
 a {
-  color: inherit;
+  color: #0969da;
   text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 * {
   box-sizing: border-box;
+}
+
+code {
+  background: #f6f8fa;
+  padding: 0.75em;
+  border-radius: 0.25em;
 }
