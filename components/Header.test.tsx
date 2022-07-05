@@ -4,6 +4,7 @@ import Header from './Header'
 
 describe('Home', () => {
 	it('renders a heading', async () => {
+
 		render(<QueryClientProvider client={new QueryClient()}><Header /></QueryClientProvider>)
 
 		const heading = await waitFor(() => {

@@ -15,7 +15,7 @@ export interface IContext {
 }
 
 const mergedMocks = Object.values(mocks).reduce((a, b) => ({ ...a, ...b }))
-const useMocks = false;
+const useMocks = true;
 
 export const apolloServer = new ApolloServer({
 	typeDefs: loadFilesSync('graphql-server/**/*.graphql'),

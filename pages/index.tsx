@@ -1,8 +1,10 @@
-import { dehydrate, QueryClient } from 'react-query'
-import { useGetAuthorQuery } from '@gTypes/graphql-generated'
-import type { GetServerSideProps, NextPage } from 'next'
+import { dehydrate } from 'react-query'
+import { GetAuthorDocument, useGetAuthorQuery } from '@gTypes/graphql-generated'
+import type { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
+import { serverSideQuery } from '@graphqlServer/serverSideQuery'
+import Link from 'next/link'
 
 const Home: NextPage = () => {
 	const { data, isLoading } = useGetAuthorQuery({ id: "752" })
@@ -17,7 +19,7 @@ const Home: NextPage = () => {
 			<main className={styles.main}>
 				<h2>This page was rendered using SSG</h2>
 				<p>Look in <code>getStaticProps</code> and change the <code>id</code> of the query to play with the cache</p>
-				<p>{"Fetched author name: "}<code>{loading ? "...loading" : data?.getAuthor.name}</code></p>
+				<p>{"Fetched author name: "}<code>{isLoading ? "...loading" : data?.getAuthor.name}</code></p>
 				<p><Link href="/ssr">Try a SSR page</Link></p>
 			</main>
 
@@ -29,28 +31,15 @@ const Home: NextPage = () => {
 
 export const getStaticProps: GetStaticProps = async (context) => {
 	const start = performance.now()
-	const res = await serverSideQuery<GetAuthorQuery, GetAuthorQueryVariables>({ query: GetAuthorDocument, variables: { id: "752" } })
+	const res = await serverSideQuery({ query: GetAuthorDocument, variables: { id: "752" }, keyFn: useGetAuthorQuery.getKey })
 	const end = performance.now()
 
 	console.log(`Call to getStaticProps using serverSideQuery took ${end - start} milliseconds`)
 	return {
 		props: {
-			initialApolloState: res.cache.extract()
+			dehydratedState: dehydrate(res.client)
 		}
 	}
 }
-
-/* export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-	const start = performance.now()
-	const client = initializeApollo()
-	const cache = await client.query({ query: GetAuthorDocument, variables: { id: "752" } })
-	const end = performance.now()
-	console.log(`Call to getStaticProps using ApolloClient took ${end - start} milliseconds`)
-	return {
-		props: {
-			initialApolloState: client.cache?.extract()
-		}
-	}
-} */
 
 export default Home
