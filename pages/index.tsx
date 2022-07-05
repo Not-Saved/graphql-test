@@ -1,9 +1,13 @@
-import type { GetServerSideProps, NextPage } from 'next'
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import type { GetServerSideProps, GetStaticProps, NextPage } from 'next'
+import Head from "next/head"
 
-import { initializeApollo } from '@graphqlClient/client'
-import { GetAuthorDocument, useGetAuthorQuery } from '@gTypes/graphql-generated'
+import { performance } from "perf_hooks"
+
+import styles from "../styles/Home.module.css"
+
+import { initializeApollo } from "@graphqlClient/client"
+import { serverSideQuery } from "@graphqlServer/server"
+import { GetAuthorDocument, useGetAuthorQuery } from "@gTypes/graphql-generated"
 
 const Home: NextPage = () => {
 	const { data, loading } = useGetAuthorQuery({ variables: { id: "752" } })
@@ -24,14 +28,29 @@ const Home: NextPage = () => {
 	)
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	const apolloClient = initializeApollo();
-	await apolloClient.query({ query: GetAuthorDocument, variables: { id: "752" } })
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	const start = performance.now()
+	const cache = await serverSideQuery({ query: GetAuthorDocument, variables: { id: "752" } }, { req, res })
+	const end = performance.now()
+	console.log(`Call to getServerSideProps using serverSideQuery took ${end - start} milliseconds`)
 	return {
 		props: {
-			initialApolloState: apolloClient.cache.extract(),
+			initialApolloState: cache?.extract()
 		}
 	}
 }
+
+/* export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	const start = performance.now()
+	const client = initializeApollo()
+	const cache = await client.query({ query: GetAuthorDocument, variables: { id: "752" } })
+	const end = performance.now()
+	console.log(`Call to getServerSideProps using ApolloClient took ${end - start} milliseconds`)
+	return {
+		props: {
+			initialApolloState: client.cache?.extract()
+		}
+	}
+} */
 
 export default Home

@@ -1,11 +1,13 @@
-import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { ApolloServer } from "apollo-server-micro";
-import { mergeResolvers } from '@graphql-tools/merge'
-import { loadFilesSync } from '@graphql-tools/load-files'
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core"
+import { ApolloServer } from "apollo-server-micro"
 
-import * as resolvers from "./resolvers"
-import * as mocks from "./mocks"
+import { InMemoryCache } from "@apollo/client"
+import { loadFilesSync } from "@graphql-tools/load-files"
+import { mergeResolvers } from "@graphql-tools/merge"
+
 import dataSources from "./dataSources"
+import * as mocks from "./mocks"
+import * as resolvers from "./resolvers"
 
 const IDataSources = dataSources()
 export interface IContext {
@@ -33,3 +35,13 @@ export const apolloServer = new ApolloServer({
 	mocks: useMocks ? mergedMocks : undefined
 });
 
+export async function serverSideQuery({ query, variables }: { query: any, variables: any }, context?: { req: any, res: any }): Promise<InMemoryCache | null> {
+	try {
+		const data = await apolloServer.executeOperation({ query: query, variables: variables }, context ? { req: context.req, res: context.res } : undefined)
+		const cache = new InMemoryCache()
+		cache.writeQuery({ query: query, variables: variables, data: data.data })
+		return cache;
+	} catch (e) {
+		return null;
+	}
+}
