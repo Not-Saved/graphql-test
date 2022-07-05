@@ -1,11 +1,12 @@
-import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
-import { ApolloServer } from "apollo-server-micro";
-import { mergeResolvers } from '@graphql-tools/merge'
-import { loadFilesSync } from '@graphql-tools/load-files'
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core"
+import { ApolloServer } from "apollo-server-micro"
 
-import * as resolvers from "./resolvers"
-import * as mocks from "./mocks"
+import { loadFilesSync } from "@graphql-tools/load-files"
+import { mergeResolvers } from "@graphql-tools/merge"
+
 import dataSources from "./dataSources"
+import * as mocks from "./mocks"
+import * as resolvers from "./resolvers"
 
 const IDataSources = dataSources()
 export interface IContext {

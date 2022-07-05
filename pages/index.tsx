@@ -15,34 +15,42 @@ const Home: NextPage = () => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<main className={styles.main}>
-				<h2>Look in <code>getServerSideProps</code></h2>
-				<p>and change the id of the query to play with the cache</p>
-				<div>{isLoading ? "LOADING DATA" : data?.getAuthor?.name}</div>
+				<h2>This page was rendered using SSG</h2>
+				<p>Look in <code>getStaticProps</code> and change the <code>id</code> of the query to play with the cache</p>
+				<p>{"Fetched author name: "}<code>{loading ? "...loading" : data?.getAuthor.name}</code></p>
+				<p><Link href="/ssr">Try a SSR page</Link></p>
 			</main>
+
+
+
 		</div>
 	)
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	const queryClient = new QueryClient()
+export const getStaticProps: GetStaticProps = async (context) => {
+	const start = performance.now()
+	const res = await serverSideQuery<GetAuthorQuery, GetAuthorQueryVariables>({ query: GetAuthorDocument, variables: { id: "752" } })
+	const end = performance.now()
 
-	await queryClient.prefetchQuery(
-		useGetAuthorQuery.getKey({ id: "752" }),
-		() => useGetAuthorQuery.fetcher({ id: "752" })
-	)
-
-	const dehydratedState = dehydrate(queryClient)
-	const state = dehydratedState.queries.map(async (query) => {
-		const data = await query.state.data
-		return { ...query, state: { ...query.state, data } }
-	})
-	const state2 = { ...dehydratedState, queries: await Promise.all(state) }
-
+	console.log(`Call to getStaticProps using serverSideQuery took ${end - start} milliseconds`)
 	return {
 		props: {
-			dehydratedState: state2
+			initialApolloState: res.cache.extract()
 		}
 	}
 }
+
+/* export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+	const start = performance.now()
+	const client = initializeApollo()
+	const cache = await client.query({ query: GetAuthorDocument, variables: { id: "752" } })
+	const end = performance.now()
+	console.log(`Call to getStaticProps using ApolloClient took ${end - start} milliseconds`)
+	return {
+		props: {
+			initialApolloState: client.cache?.extract()
+		}
+	}
+} */
 
 export default Home
